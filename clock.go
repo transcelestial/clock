@@ -11,7 +11,7 @@ type Clock interface {
 	// Now returns the current system time (same as `time.Now()`)
 	Now() time.Time
 	// NewTicker creates a new ticker that uses the system clock (same as `time.NewTicker()`).
-	// Note that the options are need when testing, to set the ticker ID, and it won't have any effect when using the
+	// Note that the options are needed when testing, to set the ticker ID, and it won't have any effect when using the
 	// system clock.
 	NewTicker(d time.Duration, opts ...TickerOption) Ticker
 	// Sleep pauses execution in the current thread for d duration.
