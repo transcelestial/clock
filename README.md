@@ -15,8 +15,8 @@ package mypackage
 
 import (
     "fmt"
-	
-	"github.com/transcelestial/clock"
+
+    "github.com/transcelestial/clock"
 )
 
 func MyFunc(c *clock.Clock) string {
@@ -29,12 +29,12 @@ func MyFunc(c *clock.Clock) string {
 package mypackage
 
 import (
-	"testing"
+    "testing"
 
-	"github.com/transcelestial/clock"
+    "github.com/transcelestial/clock"
 
     "github.com/stretchr/testify/assert"
-	"github.com/transcelestial/clock/clocktest"
+    "github.com/transcelestial/clock/clocktest"
 )
 
 func TestMyFunc(t *testing.T) {
@@ -45,7 +45,7 @@ func TestMyFunc(t *testing.T) {
 
     // push some values into the queue
     now := time.Date(2018, 12, 31, 0, 0, 0, 0, time.UTC)
-	q.Push(now)
+    q.Push(now)
 
     assert.Equal(t, "2018-12-31T00:00:00Z", MyFunc(c))
 }
