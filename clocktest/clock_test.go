@@ -1,6 +1,8 @@
 package clocktest
 
 import (
+	"context"
+	"sync"
 	"testing"
 	"time"
 
@@ -65,4 +67,22 @@ func TestClockWithEmptyTimeQueue(t *testing.T) {
 	q.Push(t0)
 	t1 := <-ch
 	assert.Equal(t, t0, t1)
+}
+
+func TestClockWithSleepr(t *testing.T) {
+	ctx := context.Background()
+
+	s := NewSleeper()
+	c := New(WithSleeper(s))
+
+	var wg sync.WaitGroup
+	wg.Add(1)
+
+	go func() {
+		c.Sleep(time.Second)
+		wg.Done()
+	}()
+
+	s.WakeUp(ctx)
+	wg.Wait()
 }

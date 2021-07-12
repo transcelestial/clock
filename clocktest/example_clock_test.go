@@ -107,6 +107,33 @@ func ExampleClock_NewTicker() {
 	// 2
 }
 
+func ExampleClock_Sleep() {
+	// create a sleeper
+	s := clocktest.NewSleeper()
+	// and a test clock that uses the sleeper
+	c := clocktest.New(clocktest.WithSleeper(s))
+
+	// trigger wakeup after 100ms-ish
+	time.AfterFunc(100*time.Millisecond, func() {
+		s.WakeUp(context.Background())
+	})
+
+	// sleep for 10s
+	now := time.Now()
+	c.Sleep(10 * time.Second)
+	elapsed := time.Since(now)
+
+	// check that we didn't actually sleep for 10s (at most 1s if OS is slow)
+	if elapsed < time.Second {
+		fmt.Println("hooray!")
+	} else {
+		fmt.Println("oops :/")
+	}
+
+	// Output:
+	// hooray!
+}
+
 type counter struct {
 	c   clock.Clock
 	mux sync.RWMutex

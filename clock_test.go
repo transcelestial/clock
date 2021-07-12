@@ -22,3 +22,11 @@ func TestSysClockTicker(t *testing.T) {
 		ticker.Stop()
 	}
 }
+
+func TestSysClockSleep(t *testing.T) {
+	c := New()
+	before := time.Now()
+	c.Sleep(100 * time.Millisecond)
+	elapsed := time.Since(before)
+	assert.True(t, elapsed >= 100*time.Millisecond)
+}

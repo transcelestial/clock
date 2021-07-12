@@ -5,7 +5,7 @@
 
 The sole purpose of this package is to provide a way to test code that uses time functions from Go's [time](https://golang.org/pkg/time/) package. While there's ways to get around (e.g. make durations for tickers configurable so we can override during tests, etc), it's always better to have more control over time functions like tickers (when the next tick happens), timers (when the timer expires), etc.
 
-**NOTE**: Only `Now()` and `NewTicker()` are implemented as of now.
+**NOTE**: Only `Now()`, `NewTicker()` and `Sleep()` are implemented as of now.
 
 ## Usage
 
@@ -60,7 +60,7 @@ Implement the rest of "time" functions:
 * [ ] `time.After`
 * [ ] `time.AfterFunc`
 * [ ] `time.NewTimer`
-* [ ] `time.Sleep`
+* [x] `time.Sleep`
 * [ ] `time.Tick`
 
 ## Alternatives

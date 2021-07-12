@@ -12,6 +12,8 @@ type Clock interface {
 	Now() time.Time
 	// NewTicker creates a new ticker that uses the system clock (same as `time.NewTicker()`).
 	NewTicker(d time.Duration) Ticker
+	// Sleep pauses execution in the current thread for d duration.
+	Sleep(d time.Duration)
 }
 
 type sysClock struct{}
@@ -22,4 +24,8 @@ func (c *sysClock) Now() time.Time {
 
 func (c *sysClock) NewTicker(d time.Duration) Ticker {
 	return newSysTicker(d)
+}
+
+func (c *sysClock) Sleep(d time.Duration) {
+	time.Sleep(d)
 }

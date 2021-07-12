@@ -16,12 +16,14 @@ func New(options ...Option) clock.Clock {
 	return &testClock{
 		t:  opts.ticker,
 		tq: opts.tq,
+		s:  opts.s,
 	}
 }
 
 type Options struct {
 	ticker clock.Ticker
 	tq     *TimeQueue
+	s      *Sleeper
 }
 
 type Option func(*Options)
@@ -40,9 +42,17 @@ func WithTimeQueue(tq *TimeQueue) Option {
 	}
 }
 
+// WithSleeper sets a sleeper on the clock.
+func WithSleeper(s *Sleeper) Option {
+	return func(o *Options) {
+		o.s = s
+	}
+}
+
 type testClock struct {
 	t  clock.Ticker
 	tq *TimeQueue
+	s  *Sleeper
 }
 
 // Now returns the first time.Time from the time queue
@@ -53,6 +63,10 @@ func (c *testClock) Now() time.Time {
 // NewTicker returns the ticker the clock was initialized with
 func (c *testClock) NewTicker(d time.Duration) clock.Ticker {
 	return c.t
+}
+
+func (c *testClock) Sleep(d time.Duration) {
+	c.s.Sleep()
 }
 
 var _ clock.Clock = &testClock{}
