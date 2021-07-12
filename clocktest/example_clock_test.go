@@ -66,13 +66,16 @@ func ExampleClock_NewTicker() {
 
 	// create a test ticker (this ticker is returned to every clock.NewTicker())
 	tt := clocktest.NewTicker()
-	// and a test clock that uses the ticker
-	c := clocktest.New(clocktest.WithTicker(tt))
+	// ticker id to use when we have more than 1 ticker on the clock
+	tid := 0 // can be anything
+	// and a test clock that uses the ticker with some id
+	c := clocktest.New(clocktest.WithTicker(tid, tt))
 
 	// create a counter that increments every 1 second
 	// and prints the received time
 	ctr := &counter{
-		c: c,
+		c:   c,
+		tid: tid,
 		// use this to get notifications when the counter got incremented.
 		// we can also use a time.Sleep() after a tt.Next(), but it's not guaranteed we get the timing right
 		updated: make(chan struct{}, 1),
@@ -136,6 +139,8 @@ func ExampleClock_Sleep() {
 
 type counter struct {
 	c   clock.Clock
+	tid int
+
 	mux sync.RWMutex
 	v   int
 
@@ -149,7 +154,7 @@ func (c *counter) Get() int {
 }
 
 func (c *counter) start(ctx context.Context) {
-	ticker := c.c.NewTicker(time.Second)
+	ticker := c.c.NewTicker(time.Second, clock.TickerWithID(c.tid))
 	defer ticker.Stop()
 
 	for {

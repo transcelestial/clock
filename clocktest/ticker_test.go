@@ -99,7 +99,7 @@ func TestTickerManyStop(t *testing.T) {
 	ticker.Done()
 }
 
-func TestTickerManyRest(t *testing.T) {
+func TestTickerManyReset(t *testing.T) {
 	defer leaktest.Check(t)()
 
 	ticker := NewTicker()

@@ -30,3 +30,9 @@ func TestSysClockSleep(t *testing.T) {
 	elapsed := time.Since(before)
 	assert.True(t, elapsed >= 100*time.Millisecond)
 }
+
+func TestTickerOptions(t *testing.T) {
+	opts := &TickerOptions{}
+	TickerWithID(123)(opts)
+	assert.Equal(t, 123, opts.ID)
+}
