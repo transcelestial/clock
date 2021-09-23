@@ -11,23 +11,11 @@ type Clock interface {
 	// Now returns the current system time (same as `time.Now()`)
 	Now() time.Time
 	// NewTicker creates a new ticker that uses the system clock (same as `time.NewTicker()`).
-	// Note that the options are needed when testing, to set the ticker ID, and it won't have any effect when using the
-	// system clock.
-	NewTicker(d time.Duration, opts ...TickerOption) Ticker
-	// Sleep pauses execution in the current thread for d duration.
+	NewTicker(d time.Duration) Ticker
+	// NewTimer creates a new timer that uses the system clock (same as `time.NewTimer()`).
+	NewTimer(d time.Duration) Timer
+	// Sleep pauses execution in the current thread for d duration (same as `time.Sleep()`).
 	Sleep(d time.Duration)
-}
-
-type TickerOption func(*TickerOptions)
-
-type TickerOptions struct {
-	ID interface{}
-}
-
-func TickerWithID(id interface{}) TickerOption {
-	return func(o *TickerOptions) {
-		o.ID = id
-	}
 }
 
 type sysClock struct{}
@@ -36,8 +24,12 @@ func (c *sysClock) Now() time.Time {
 	return time.Now()
 }
 
-func (c *sysClock) NewTicker(d time.Duration, opts ...TickerOption) Ticker {
+func (c *sysClock) NewTicker(d time.Duration) Ticker {
 	return newSysTicker(d)
+}
+
+func (c *sysClock) NewTimer(d time.Duration) Timer {
+	return newSysTimer(d)
 }
 
 func (c *sysClock) Sleep(d time.Duration) {

@@ -28,5 +28,3 @@ func (t *sysTicker) Stop() {
 func (t *sysTicker) Reset(d time.Duration) {
 	t.t.Reset(d)
 }
-
-var _ Ticker = &sysTicker{}

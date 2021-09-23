@@ -20,6 +20,21 @@ func ExampleClock_Now() {
 	myFunc(c)
 }
 
+func ExampleClock_Sleep() {
+	c := clock.New()
+
+	now := time.Now()
+	c.Sleep(time.Second)
+	d := time.Since(now)
+
+	if d >= time.Second {
+		fmt.Println("slept a second")
+	}
+
+	// Output:
+	// slept a second
+}
+
 func ExampleClock_NewTicker() {
 	c := clock.New()
 
@@ -46,4 +61,20 @@ func ExampleClock_NewTicker() {
 	// 0
 	// 1
 	// 2
+}
+
+func ExampleClock_NewTimer() {
+	c := clock.New()
+
+	// create a new timer that will trigger after 100ms
+	timer := c.NewTimer(100 * time.Millisecond)
+	defer timer.Stop()
+
+	// wait for the timer to trigger
+	<-timer.C()
+
+	fmt.Println("done")
+
+	// Output:
+	// done
 }
