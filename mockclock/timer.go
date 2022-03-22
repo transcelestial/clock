@@ -61,9 +61,11 @@ func (mr *MockTimerMockRecorder) Reset(d interface{}) *gomock.Call {
 }
 
 // Stop mocks base method.
-func (m *MockTimer) Stop() {
+func (m *MockTimer) Stop() bool {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "Stop")
+	ret := m.ctrl.Call(m, "Stop")
+	ret0, _ := ret[0].(bool)
+	return ret0
 }
 
 // Stop indicates an expected call of Stop.
