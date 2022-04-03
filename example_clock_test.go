@@ -3,28 +3,29 @@ package clock_test
 import (
 	"context"
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/transcelestial/clock"
 )
 
 func ExampleClock_Now() {
-	c := clock.New()
+	ck := clock.New()
 
 	// inject the Clock interface as dependency into some func
-	myFunc := func(c clock.Clock) {
+	myFunc := func(ck clock.Clock) {
 		// use the clock the same way you'd use the "time" package
-		fmt.Println(c.Now())
+		fmt.Println(ck.Now())
 	}
 
-	myFunc(c)
+	myFunc(ck)
 }
 
 func ExampleClock_Sleep() {
-	c := clock.New()
+	ck := clock.New()
 
 	now := time.Now()
-	c.Sleep(time.Second)
+	ck.Sleep(time.Second)
 	d := time.Since(now)
 
 	if d >= time.Second {
@@ -36,10 +37,10 @@ func ExampleClock_Sleep() {
 }
 
 func ExampleClock_NewTicker() {
-	c := clock.New()
+	ck := clock.New()
 
 	// create a new ticker that ticks every 100ms
-	ticker := c.NewTicker(100 * time.Millisecond)
+	ticker := ck.NewTicker(100 * time.Millisecond)
 	defer ticker.Stop()
 
 	ctx, cancel := context.WithTimeout(context.Background(), 350*time.Millisecond)
@@ -64,14 +65,58 @@ func ExampleClock_NewTicker() {
 }
 
 func ExampleClock_NewTimer() {
-	c := clock.New()
+	ck := clock.New()
 
 	// create a new timer that will trigger after 100ms
-	timer := c.NewTimer(100 * time.Millisecond)
+	timer := ck.NewTimer(100 * time.Millisecond)
 	defer timer.Stop()
 
 	// wait for the timer to trigger
 	<-timer.C()
+
+	fmt.Println("done")
+
+	// Output:
+	// done
+}
+
+func ExampleClock_After() {
+	ck := clock.New()
+
+	// wait for the timer to trigger
+	<-ck.After(100 * time.Millisecond)
+
+	fmt.Println("done")
+
+	// Output:
+	// done
+}
+
+func ExampleClock_AfterFunc() {
+	ck := clock.New()
+
+	var wg sync.WaitGroup
+	wg.Add(1)
+	f := func() {
+		wg.Done()
+	}
+
+	_ = ck.AfterFunc(100*time.Millisecond, f)
+
+	// wait for the timer to trigger
+	wg.Wait()
+
+	fmt.Println("done")
+
+	// Output:
+	// done
+}
+
+func ExampleClock_Tick() {
+	ck := clock.New()
+
+	// wait for the timer to trigger
+	<-ck.Tick(100 * time.Millisecond)
 
 	fmt.Println("done")
 

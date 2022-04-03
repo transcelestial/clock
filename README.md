@@ -3,13 +3,16 @@
 
 [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/transcelestial/clock/Test?label=test&style=flat-square)](https://github.com/transcelestial/clock/actions?query=workflow%3ATest)
 
-The sole purpose of this package is to provide a way to test code, using [gomock](https://github.com/golang/mock), that uses time functions from Go's [time](https://golang.org/pkg/time/) package. While there's ways to get around (e.g. make durations for tickers configurable so we can override during tests, etc), it's always better to have more control over time functions like tickers (when the next tick happens), timers (when the timer expires), etc.
+The sole purpose of this package is to provide a way to test code, using [gomock](https://github.com/golang/mock), that uses time functions from Go's [time](https://golang.org/pkg/time/) package. While there are ways to get around (e.g. make durations for tickers configurable, so we can override during tests, etc.), it's always better to have more control over time functions like tickers (when the next tick happens), timers (when the timer expires), etc.
 
 **NOTE** Only the following functions are available:
 * `Now()`
 * `NewTicker()`
 * `NewTimer()`
 * `Sleep()`
+* `After()`
+* `AfterFunc()`
+* `Tick()`
 
 ## Usage
 
@@ -58,15 +61,6 @@ func TestMyFunc(t *testing.T) {
 ```
 
 See [example_clock_test](./example_clock_test.go) and [example_mockclock_test](./example_mockclock_test.go) for more examples.
-
-## TODO
-Implement the rest of the "time" functions:
-
-* [ ] `time.After`
-* [ ] `time.AfterFunc`
-* [x] `time.NewTimer`
-* [x] `time.Sleep`
-* [ ] `time.Tick`
 
 ## Alternatives
 You may also want to try out these alternatives:

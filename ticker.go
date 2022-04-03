@@ -8,8 +8,11 @@ func newSysTicker(d time.Duration) Ticker {
 }
 
 type Ticker interface {
+	// C returns the ticker.C chan.
 	C() <-chan time.Time
+	// Reset resets the ticker to a different duration.
 	Reset(d time.Duration)
+	// Stop stops the ticker.
 	Stop()
 }
 

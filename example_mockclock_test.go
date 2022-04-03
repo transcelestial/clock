@@ -1,6 +1,7 @@
 package clock_test
 
 import (
+	"sync"
 	"testing"
 	"time"
 
@@ -13,28 +14,28 @@ import (
 
 func TestMockclockNow(t *testing.T) {
 	ctrl := gomock.NewController(t)
-	c := mockclock.NewMockClock(ctrl)
+	ck := mockclock.NewMockClock(ctrl)
 
 	now := time.Now()
-	c.EXPECT().
+	ck.EXPECT().
 		Now().
 		Return(now)
 
-	getTime := func(c clock.Clock) time.Time {
-		return c.Now()
+	getTime := func(ck clock.Clock) time.Time {
+		return ck.Now()
 	}
 
-	assert.Equal(t, now, getTime(c))
+	assert.Equal(t, now, getTime(ck))
 }
 
 func TestMockclockSleep(t *testing.T) {
 	defer leaktest.Check(t)()
 
 	ctrl := gomock.NewController(t)
-	c := mockclock.NewMockClock(ctrl)
+	ck := mockclock.NewMockClock(ctrl)
 
 	wait := make(chan struct{})
-	c.EXPECT().
+	ck.EXPECT().
 		Sleep(gomock.Eq(time.Second)).
 		Do(func(time.Duration) {
 			<-wait
@@ -44,17 +45,17 @@ func TestMockclockSleep(t *testing.T) {
 		wait <- struct{}{}
 	}()
 
-	c.Sleep(time.Second)
+	ck.Sleep(time.Second)
 }
 
-func TestMockclockTicker(t *testing.T) {
+func TestMockclockNewTicker(t *testing.T) {
 	defer leaktest.Check(t)()
 
 	ctrl := gomock.NewController(t)
-	c := mockclock.NewMockClock(ctrl)
+	ck := mockclock.NewMockClock(ctrl)
 	mockticker := mockclock.NewMockTicker(ctrl)
 
-	c.EXPECT().
+	ck.EXPECT().
 		NewTicker(gomock.Eq(time.Second)).
 		Return(mockticker)
 
@@ -65,7 +66,7 @@ func TestMockclockTicker(t *testing.T) {
 			C().
 			Return(next))
 
-	ticker := c.NewTicker(time.Second)
+	ticker := ck.NewTicker(time.Second)
 	defer ticker.Stop()
 
 	now := time.Now()
@@ -73,19 +74,19 @@ func TestMockclockTicker(t *testing.T) {
 		next <- now
 	}()
 
-	tm := <-ticker.C()
+	c := <-ticker.C()
 
-	assert.Equal(t, now, tm)
+	assert.Equal(t, now, c)
 }
 
-func TestMockclockTimer(t *testing.T) {
+func TestMockclockNewTimer(t *testing.T) {
 	defer leaktest.Check(t)()
 
 	ctrl := gomock.NewController(t)
-	c := mockclock.NewMockClock(ctrl)
+	ck := mockclock.NewMockClock(ctrl)
 	mocktimer := mockclock.NewMockTimer(ctrl)
 
-	c.EXPECT().
+	ck.EXPECT().
 		NewTimer(gomock.Eq(time.Second)).
 		Return(mocktimer)
 
@@ -96,7 +97,7 @@ func TestMockclockTimer(t *testing.T) {
 			C().
 			Return(next))
 
-	timer := c.NewTimer(time.Second)
+	timer := ck.NewTimer(time.Second)
 	defer timer.Stop()
 
 	now := time.Now()
@@ -104,7 +105,74 @@ func TestMockclockTimer(t *testing.T) {
 		next <- now
 	}()
 
-	tm := <-timer.C()
+	c := <-timer.C()
 
-	assert.Equal(t, now, tm)
+	assert.Equal(t, now, c)
+}
+
+func TestMockclockAfter(t *testing.T) {
+	defer leaktest.Check(t)()
+
+	ctrl := gomock.NewController(t)
+	ck := mockclock.NewMockClock(ctrl)
+
+	next := make(chan time.Time)
+	ck.EXPECT().
+		After(gomock.Eq(time.Second)).
+		Return(next)
+
+	now := time.Now()
+	go func() {
+		next <- now
+	}()
+
+	c := <-ck.After(time.Second)
+
+	assert.Equal(t, now, c)
+}
+
+func TestMockclockAfterFunc(t *testing.T) {
+	defer leaktest.Check(t)()
+
+	ctrl := gomock.NewController(t)
+	ck := mockclock.NewMockClock(ctrl)
+	mocktimer := mockclock.NewMockTimer(ctrl)
+
+	var wg sync.WaitGroup
+	wg.Add(1)
+	f := func() {
+		wg.Done()
+	}
+
+	ck.EXPECT().
+		AfterFunc(gomock.Eq(time.Second), gomock.Any()).
+		Do(func(d time.Duration, f func()) {
+			f()
+		}).
+		Return(mocktimer)
+
+	_ = ck.AfterFunc(time.Second, f)
+
+	wg.Wait()
+}
+
+func TestMockclockTick(t *testing.T) {
+	defer leaktest.Check(t)()
+
+	ctrl := gomock.NewController(t)
+	ck := mockclock.NewMockClock(ctrl)
+
+	next := make(chan time.Time)
+	ck.EXPECT().
+		Tick(gomock.Eq(time.Second)).
+		Return(next)
+
+	now := time.Now()
+	go func() {
+		next <- now
+	}()
+
+	c := <-ck.Tick(time.Second)
+
+	assert.Equal(t, now, c)
 }

@@ -11,27 +11,48 @@ type Clock interface {
 	// Now returns the current system time (same as `time.Now()`)
 	Now() time.Time
 	// NewTicker creates a new ticker that uses the system clock (same as `time.NewTicker()`).
-	NewTicker(d time.Duration) Ticker
+	NewTicker(time.Duration) Ticker
 	// NewTimer creates a new timer that uses the system clock (same as `time.NewTimer()`).
-	NewTimer(d time.Duration) Timer
+	NewTimer(time.Duration) Timer
 	// Sleep pauses execution in the current thread for d duration (same as `time.Sleep()`).
-	Sleep(d time.Duration)
+	Sleep(time.Duration)
+	// After waits for the duration to elapse and then sends the current time
+	// on the returned channel (same as `time.After()`).
+	After(time.Duration) <-chan time.Time
+	// AfterFunc waits for the duration to elapse and then calls f
+	// in its own goroutine (same as `time.AfterFunc()`).
+	AfterFunc(time.Duration, func()) Timer
+	// Tick is a convenience wrapper for NewTicker providing access to the ticking
+	// channel only (same as `time.Tick()`).
+	Tick(time.Duration) <-chan time.Time
 }
 
 type sysClock struct{}
 
-func (c *sysClock) Now() time.Time {
+func (ck *sysClock) Now() time.Time {
 	return time.Now()
 }
 
-func (c *sysClock) NewTicker(d time.Duration) Ticker {
+func (ck *sysClock) NewTicker(d time.Duration) Ticker {
 	return newSysTicker(d)
 }
 
-func (c *sysClock) NewTimer(d time.Duration) Timer {
-	return newSysTimer(d)
+func (ck *sysClock) NewTimer(d time.Duration) Timer {
+	return newSysTimer(d, nil)
 }
 
-func (c *sysClock) Sleep(d time.Duration) {
+func (ck *sysClock) Sleep(d time.Duration) {
 	time.Sleep(d)
+}
+
+func (ck *sysClock) After(d time.Duration) <-chan time.Time {
+	return time.After(d)
+}
+
+func (ck *sysClock) AfterFunc(d time.Duration, f func()) Timer {
+	return newSysTimer(d, f)
+}
+
+func (ck *sysClock) Tick(d time.Duration) <-chan time.Time {
+	return time.Tick(d)
 }

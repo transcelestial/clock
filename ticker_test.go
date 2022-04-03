@@ -1,7 +1,6 @@
 package clock
 
 import (
-	"runtime"
 	"testing"
 	"time"
 )
@@ -9,16 +8,11 @@ import (
 // Do a sanity check
 // https://golang.org/src/time/tick_test.go
 func TestSysTicker(t *testing.T) {
-	delta := 20 * time.Millisecond
-
-	if (runtime.GOOS == "darwin" || runtime.GOOS == "ios") && runtime.GOARCH == "arm64" {
-		delta = 100 * time.Millisecond
-	}
-
-	ticker := newSysTicker(delta)
+	d := osDelta()
+	ticker := newSysTicker(d)
 	<-ticker.C()
 	ticker.Stop()
-	time.Sleep(2 * delta)
+	time.Sleep(2 * d)
 	select {
 	case <-ticker.C():
 		t.FailNow()

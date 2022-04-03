@@ -2,14 +2,22 @@ package clock
 
 import "time"
 
-func newSysTimer(d time.Duration) Timer {
-	t := time.NewTimer(d)
+func newSysTimer(d time.Duration, f func()) Timer {
+	var t *time.Timer
+	if f != nil {
+		t = time.AfterFunc(d, f)
+	} else {
+		t = time.NewTimer(d)
+	}
 	return &sysTimer{t}
 }
 
 type Timer interface {
+	// C returns the timer.C chan.
 	C() <-chan time.Time
+	// Reset resets the timer to a different duration.
 	Reset(d time.Duration)
+	// Stop stops the timer.
 	Stop() bool
 }
 
